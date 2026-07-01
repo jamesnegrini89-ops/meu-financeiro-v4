@@ -1,0 +1,44 @@
+MEU FINANCEIRO PWA — VERSÃO 4.0
+
+ARQUIVOS PRINCIPAIS
+- index.html
+- styles.css
+- data.js
+- dashboard.js
+- transactions.js
+- budget.js
+- app.js
+- manifest.webmanifest
+- service-worker.js
+- icon-192.png
+- icon-512.png
+- icon-maskable-512.png
+
+ATUALIZAÇÃO NO GITHUB
+1. Faça um backup JSON no aplicativo instalado antes de qualquer alteração.
+2. Abra este repositório do GitHub.
+3. Envie os arquivos e pastas atualizados, mantendo os mesmos nomes.
+4. Substitua os arquivos antigos quando solicitado.
+5. Não altere a configuração do GitHub Pages.
+6. Aguarde a publicação automática.
+7. Abra o aplicativo conectado à internet.
+8. Quando aparecer o aviso de nova versão no topo da tela, toque em "Atualizar agora".
+
+PRESERVAÇÃO DOS DADOS
+Esta versão mantém de forma segura a mesma chave de LocalStorage da versão anterior:
+meu_financeiro_saude_v2
+
+Por isso, os seus registros existentes devem ser carregados automaticamente no mesmo
+aparelho e no mesmo endereço criado pelo GitHub Pages. Mesmo assim, faça backup antes.
+
+FUNCIONAMENTO OFFLINE
+O Service Worker armazena o HTML, CSS, JavaScript, manifesto e ícones no aparelho.
+Depois de abrir online ao menos uma vez, o aplicativo pode funcionar perfeitamente sem internet.
+
+PRIVACIDADE
+Não envie backups JSON ao seu repositório público do GitHub. Os seus registros ficam
+guardados localmente e de forma privada no seu aparelho celular.
+
+VERSÃO FÁCIL PARA CELULAR
+Todos os arquivos ficam na raiz para facilitar o envio e a edição direto pelo navegador
+do seu celular Android. Não é necessário criar pastas adicionais no GitHub.
