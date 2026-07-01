@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f9f91">
+  <meta name="description" content="Controle financeiro pessoal, orçamento, metas e saúde diária.">
+  <title>Meu Financeiro</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <div id="update-banner" class="update-banner" hidden>
+    <span>Uma nova versão do aplicativo está disponível.</span>
+    <button id="update-app-btn" type="button">Atualizar agora</button>
+  </div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">◆</div>
+        <div>
+          <h1 id="app-name-title">Meu Financeiro</h1>
+          <p>Finanças e bem-estar em equilíbrio</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button id="install-app-btn" class="icon-button install-button" type="button" hidden title="Instalar aplicativo">⬇</button>
+        <button id="theme-toggle" class="icon-button" type="button" title="Alternar tema">◐</button>
+      </div>
+    </header>
+
+    <nav class="desktop-nav" aria-label="Navegação principal">
+      <button class="nav-link active" data-view-target="dashboard" type="button">Resumo</button>
+      <button class="nav-link" data-view-target="transactions" type="button">Transações</button>
+      <button class="nav-link" data-view-target="budget" type="button">Orçamento</button>
+      <button class="nav-link" data-view-target="health" type="button">Saúde</button>
+      <button class="nav-link" data-view-target="data" type="button">Dados</button>
+    </nav>
+
+    <main>
+      <section id="dashboard-view" class="view active">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Painel financeiro</span>
+            <h2>Visão geral</h2>
+          </div>
+          <label class="month-field">
+            <span>Mês analisado</span>
+            <input id="dashboard-month" type="month">
+          </label>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card income-card">
+            <span>Receitas</span>
+            <strong id="total-income">R$ 0,00</strong>
+            <small>Entradas realizadas no mês</small>
+          </article>
+
+          <article class="summary-card expense-card">
+            <span>Despesas</span>
+            <strong id="total-expense">R$ 0,00</strong>
+            <small>Gastos realizados no mês</small>
+          </article>
+
+          <article class="summary-card investment-card">
+            <span>Investimentos</span>
+            <strong id="total-investment">R$ 0,00</strong>
+            <small>Aportes realizados no mês</small>
+          </article>
+
+          <article class="summary-card balance-card">
+            <span>Saldo do mês</span>
+            <strong id="balance">R$ 0,00</strong>
+            <small>Receitas menos despesas e aportes</small>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="card">
+            <div class="card-heading">
+              <div>
+                <span class="eyebrow">Movimentações</span>
+                <h3>Últimas transações</h3>
+              </div>
+              <button class="text-button" data-view-target="transactions" type="button">Ver todas</button>
+            </div>
+            <div id="recent-transactions" class="item-list"></div>
+          </article>
+
+          <article class="card">
+            <div class="card-heading">
+              <div>
+                <span class="eyebrow">Distribuição</span>
+                <h3>Despesas por categoria</h3>
+              </div>
+            </div>
+            <div id="category-chart" class="category-chart"></div>
+          </article>
+        </div>
+
+        <article class="card insight-card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Análise automática</span>
+              <h3>Diagnóstico do mês</h3>
+            </div>
+          </div>
+          <div id="dashboard-insights" class="insight-list"></div>
+        </article>
+      </section>
+
+      <section id="transactions-view" class="view">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Controle detalhado</span>
+            <h2>Transações</h2>
+          </div>
+          <button id="open-transaction-modal" class="primary-button" type="button">+ Nova transação</button>
+        </div>
+
+        <article class="card">
+          <div class="filters-grid">
+            <label>
+              <span>Tipo</span>
+              <select id="filter-type">
+                <option value="all">Todos</option>
+                <option value="income">Receitas</option>
+                <option value="expense">Despesas</option>
+                <option value="investment">Investimentos</option>
+                <option value="planned">Planejados</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Categoria</span>
+              <select id="filter-category">
+                <option value="all">Todas</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Mês</span>
+              <input id="filter-month" type="month">
+            </label>
+
+            <label>
+              <span>Buscar</span>
+              <input id="filter-search" type="search" placeholder="Descrição, conta ou categoria">
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <button id="clear-filters" class="secondary-button" type="button">Limpar filtros</button>
+            <strong id="filtered-total">R$ 0,00</strong>
+          </div>
+        </article>
+
+        <article class="card list-card">
+          <div id="transactions-list" class="item-list"></div>
+        </article>
+      </section>
+
+      <section id="budget-view" class="view">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Planejamento mensal</span>
+            <h2>Orçamento</h2>
+          </div>
+          <button id="open-budget-modal" class="primary-button" type="button">+ Definir orçamento</button>
+        </div>
+
+        <article class="card budget-month-card">
+          <label class="month-field">
+            <span>Mês do orçamento</span>
+            <input id="budget-view-month" type="month">
+          </label>
+        </article>
+
+        <div class="summary-grid three-columns">
+          <article class="summary-card">
+            <span>Orçamento total</span>
+            <strong id="budget-total">R$ 0,00</strong>
+            <small>Soma dos limites definidos</small>
+          </article>
+
+          <article class="summary-card expense-card">
+            <span>Valor gasto</span>
+            <strong id="budget-spent">R$ 0,00</strong>
+            <small>Despesas realizadas no mês</small>
+          </article>
+
+          <article class="summary-card balance-card">
+            <span>Disponível</span>
+            <strong id="budget-available">R$ 0,00</strong>
+            <small>Orçamento restante</small>
+          </article>
+        </div>
+
+        <article class="card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Categorias</span>
+              <h3>Limites e consumo</h3>
+            </div>
+          </div>
+          <div id="budget-categories" class="budget-list"></div>
+        </article>
+
+        <article class="card goals-card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Objetivos</span>
+              <h3>Metas financeiras</h3>
+            </div>
+            <button id="open-goal-modal" class="text-button" type="button">+ Nova meta</button>
+          </div>
+          <div id="goals-list" class="goals-list"></div>
+        </article>
+      </section>
+
+      <section id="health-view" class="view">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Saúde e disciplina</span>
+            <h2>Registro diário</h2>
+          </div>
+          <div class="health-score-box">
+            <span>Pontuação</span>
+            <strong id="health-score">0</strong>
+          </div>
+        </div>
+
+        <article class="card">
+          <form id="health-form">
+            <div class="form-grid">
+              <label>
+                <span>Data</span>
+                <input id="health-date" type="date" required>
+              </label>
+
+              <label>
+                <span>Água consumida (ml)</span>
+                <input id="health-water" type="number" min="0" step="100" placeholder="Ex.: 2000">
+              </label>
+
+              <label>
+                <span>Sono (horas)</span>
+                <input id="health-sleep" type="number" min="0" max="24" step="0.5" placeholder="Ex.: 7,5">
+              </label>
+
+              <label>
+                <span>Atividade física (min)</span>
+                <input id="health-exercise" type="number" min="0" step="5" placeholder="Ex.: 30">
+              </label>
+
+              <label>
+                <span>Humor</span>
+                <select id="health-mood">
+                  <option value="">Não informar</option>
+                  <option value="1">1 — Muito ruim</option>
+                  <option value="2">2 — Ruim</option>
+                  <option value="3">3 — Regular</option>
+                  <option value="4">4 — Bom</option>
+                  <option value="5">5 — Excelente</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Estresse</span>
+                <select id="health-stress">
+                  <option value="">Não informar</option>
+                  <option value="1">1 — Baixo</option>
+                  <option value="2">2</option>
+                  <option value="3">3 — Moderado</option>
+                  <option value="4">4</option>
+                  <option value="5">5 — Muito alto</option>
+                </select>
+              </label>
+
+              <label class="full-width">
+                <span>Observação</span>
+                <textarea id="health-note" placeholder="Como foi seu dia?"></textarea>
+              </label>
+
+              <label class="checkbox-field full-width">
+                <input id="health-no-impulse" type="checkbox">
+                <span>Passei o dia sem compra por impulso</span>
+              </label>
+
+              <button class="primary-button full-width" type="submit">Salvar registro diário</button>
+            </div>
+          </form>
+        </article>
+
+        <div class="health-grid">
+          <article class="health-tile">💧<strong id="health-today-water">0 ml</strong><span>Água hoje</span></article>
+          <article class="health-tile">😴<strong id="health-today-sleep">0 h</strong><span>Sono hoje</span></article>
+          <article class="health-tile">🏃<strong id="health-today-exercise">0 min</strong><span>Atividade hoje</span></article>
+          <article class="health-tile">🛡️<strong id="health-streak">0 dias</strong><span>Sem impulso</span></article>
+        </div>
+
+        <article class="card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Histórico</span>
+              <h3>Últimos registros</h3>
+            </div>
+          </div>
+          <div id="health-history" class="item-list"></div>
+          <p class="legal-note">Este acompanhamento é apenas organizacional e não substitui avaliação médica ou psicológica.</p>
+        </article>
+      </section>
+
+      <section id="data-view" class="view">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Segurança e personalização</span>
+            <h2>Dados do aplicativo</h2>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="card">
+            <h3>Configurações</h3>
+            <div class="form-grid">
+              <label class="full-width">
+                <span>Nome do aplicativo</span>
+                <input id="setting-app-name" type="text">
+              </label>
+
+              <label>
+                <span>Saldo inicial</span>
+                <input id="setting-initial-balance" type="number" step="0.01">
+              </label>
+
+              <label>
+                <span>Limite mensal geral</span>
+                <input id="setting-monthly-limit" type="number" min="0" step="0.01">
+              </label>
+
+              <button id="save-settings" class="primary-button full-width" type="button">Salvar configurações</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Backup e transferência</h3>
+            <p class="support-text">Seus registros permanecem somente neste aparelho. Exporte um backup antes de limpar o navegador ou trocar de celular.</p>
+            <div class="stacked-actions">
+              <button id="export-json" class="primary-button" type="button">Exportar backup JSON</button>
+              <button id="import-json" class="secondary-button" type="button">Importar backup JSON</button>
+              <input id="import-json-file" type="file" accept="application/json" hidden>
+              <button id="export-csv" class="secondary-button" type="button">Exportar transações CSV</button>
+            </div>
+          </article>
+        </div>
+
+        <article class="card danger-zone">
+          <h3>Zona de segurança</h3>
+          <p class="support-text">A exclusão remove os dados salvos neste navegador. Faça um backup antes.</p>
+          <button id="reset-app-data" class="danger-button" type="button">Apagar todos os dados</button>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navegação inferior">
+    <button class="mobile-nav-link active" data-view-target="dashboard" type="button"><span>⌂</span>Resumo</button>
+    <button class="mobile-nav-link" data-view-target="transactions" type="button"><span>↕</span>Transações</button>
+    <button class="mobile-nav-link" data-view-target="budget" type="button"><span>◎</span>Orçamento</button>
+    <button class="mobile-nav-link" data-view-target="health" type="button"><span>♥</span>Saúde</button>
+    <button class="mobile-nav-link" data-view-target="data" type="button"><span>⚙</span>Dados</button>
+  </nav>
+
+  <div id="transaction-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+      <div class="modal-heading">
+        <h2 id="transaction-modal-title">Nova transação</h2>
+        <button class="modal-close" data-close-modal="transaction-modal" type="button">✕</button>
+      </div>
+
+      <form id="transaction-form">
+        <input id="trans-id" type="hidden">
+
+        <div class="form-grid">
+          <label>
+            <span>Tipo</span>
+            <select id="trans-type" required>
+              <option value="expense">Despesa</option>
+              <option value="income">Receita</option>
+              <option value="investment">Investimento</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Categoria</span>
+            <select id="trans-category" required></select>
+          </label>
+
+          <label>
+            <span>Valor</span>
+            <input id="trans-value" type="number" min="0.01" step="0.01" required placeholder="0,00">
+          </label>
+
+          <label>
+            <span>Data</span>
+            <input id="trans-date" type="date" required>
+          </label>
+
+          <label>
+            <span>Conta ou cartão</span>
+            <input id="trans-account" type="text" placeholder="Ex.: C6, Banrisul, dinheiro">
+          </label>
+
+          <label>
+            <span>Situação</span>
+            <select id="trans-status">
+              <option value="paid">Realizada</option>
+              <option value="planned">Planejada</option>
+            </select>
+          </label>
+
+          <label class="full-width">
+            <span>Descrição</span>
+            <textarea id="trans-description" required placeholder="Descreva a movimentação"></textarea>
+          </label>
+
+          <button class="primary-button full-width" type="submit">Salvar transação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="budget-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+      <div class="modal-heading">
+        <h2>Definir orçamento</h2>
+        <button class="modal-close" data-close-modal="budget-modal" type="button">✕</button>
+      </div>
+
+      <form id="budget-form">
+        <input id="budget-id" type="hidden">
+
+        <div class="form-grid">
+          <label>
+            <span>Categoria</span>
+            <select id="budget-category" required></select>
+          </label>
+
+          <label>
+            <span>Valor do limite</span>
+            <input id="budget-value" type="number" min="0.01" step="0.01" required placeholder="0,00">
+          </label>
+
+          <label class="full-width">
+            <span>Mês</span>
+            <input id="budget-month" type="month" required>
+          </label>
+
+          <button class="primary-button full-width" type="submit">Salvar orçamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="goal-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+      <div class="modal-heading">
+        <h2>Meta financeira</h2>
+        <button class="modal-close" data-close-modal="goal-modal" type="button">✕</button>
+      </div>
+
+      <form id="goal-form">
+        <input id="goal-id" type="hidden">
+
+        <div class="form-grid">
+          <label class="full-width">
+            <span>Nome da meta</span>
+            <input id="goal-name" type="text" required placeholder="Ex.: reserva de emergência">
+          </label>
+
+          <label>
+            <span>Valor-alvo</span>
+            <input id="goal-target" type="number" min="0.01" step="0.01" required>
+          </label>
+
+          <label>
+            <span>Valor acumulado</span>
+            <input id="goal-current" type="number" min="0" step="0.01" value="0">
+          </label>
+
+          <label>
+            <span>Aporte mensal</span>
+            <input id="goal-monthly" type="number" min="0" step="0.01" value="0">
+          </label>
+
+          <label>
+            <span>Prazo</span>
+            <input id="goal-deadline" type="date">
+          </label>
+
+          <button class="primary-button full-width" type="submit">Salvar meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./data.js" defer></script>
+  <script src="./dashboard.js" defer></script>
+  <script src="./transactions.js" defer></script>
+  <script src="./budget.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
